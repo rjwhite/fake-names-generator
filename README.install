@@ -1,0 +1,22 @@
+To install, typing 'make install' will install both the program
+and the name data-files.  To install only the program, you can
+type 'make install-bin' and to install only the data-files you
+can type 'make install-data'
+
+If you are the super-user (root), the program will be installed in:
+	/usr/local/bin/fake-names-generator
+and the data files will be installed in:
+	/usr/local/etc/fake-names-generator/
+
+If you are a regular user, the program will be installed in:
+	${HOME}/bin/fake-names-generator
+and the data files will be installed in:
+	${HOME}/etc/fake-names-generator/
+
+The Makefile will not install the data files if they already exist.
+The data files in the distribution are meant as originals and
+the files already installed can be safely added to without worrying
+that a future (re)install will over-write your additions or changes.
+
+See 'perldoc fake-names-generator.plx' for information about the
+program workings and 'fake-names-generator --help' for help.
