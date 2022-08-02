@@ -17,7 +17,7 @@ use warnings ;
 my $G_progname = $0 ;
 $G_progname    =~ s/^.*\/// ;
 my $G_debug    = 0 ;
-my $G_version  = '1.0' ;
+my $G_version  = '1.1' ;
 
 my $C_MAX_DUPLICATES = 300 ;   # max allowed duplicates when creating names
 
@@ -38,6 +38,7 @@ sub main {
     my $name_connector     = '.' ;
     my $want               = 1 ;
     my $alias              = undef ;
+    my $alias_option       = 0 ;
     my $give_up_value       = $C_MAX_DUPLICATES ;
 
     my ( $full_first_file, $full_last_file, $full_exclude_file ) ;
@@ -65,27 +66,28 @@ sub main {
         } elsif (( $arg eq "-w" ) or ( $arg eq "--want" )) {
             $want = $ARGV[ ++$i ] ;
         } elsif (( $arg eq "-a" ) or ( $arg eq "--alias" )) {
+            $alias_option = 1 ;
             $alias = $ARGV[ ++$i ] ;
         } elsif (( $arg eq "-c" ) or ( $arg eq "--connector" )) {
             $name_connector = $ARGV[ ++$i ] ;
         } elsif (( $arg eq "-h" ) or ( $arg eq "--help" )) {
-            printf "usage: $G_progname [options]*\n" .
+            printf "usage: $G_progname [option]*\n" .
               "%s %s %s %s %s %s %s %s %s %s %s %s",
-                "\t[-a|--alias      username]     (/etc/aliases format)\n",
-                "\t[-c|--connector  character     (default=\'$name_connector\')]\n",
+                "\t[-a|--alias username]           (/etc/aliases format)\n",
+                "\t[-c|--connector character]      (default=\'$name_connector\')\n",
                 "\t[-d|--debug]\n",
-                "\t[-e|--exclude    filename      (default=\'" .
-                    find_file( $exclude_names_file, "" ) . "\')]\n",
-                "\t[-f|--firstnames filename      (default=\'" .
-                    find_file( $first_names_file, "" ) . "\')]\n",
-                "\t[-g|--giveup     number        (default=$give_up_value)]\n",
+                "\t[-e|--exclude filename]         (default=\'" .
+                    find_file( $exclude_names_file, "" ) . "\')\n",
+                "\t[-f|--firstnames filename]      (default=\'" .
+                    find_file( $first_names_file, "" ) . "\')\n",
+                "\t[-g|--giveup number]            (default=$give_up_value)\n",
                 "\t[-h|--help]\n",
-                "\t[-l|--lastnames  filename      (default=\'" .
-                    find_file( $last_names_file, "" ) . "\')]\n",
-                "\t[-v|--version                  (version)]\n",
-                "\t[-w|--want       number        (number of names. default=$want)]\n",
-                "\t[-L|--last-max-len   number    (default=$last_name_max)]\n",
-                "\t[-F|--first-max-len  number    (default=$first_name_max)]\n" ;
+                "\t[-l|--lastnames filename]       (default=\'" .
+                    find_file( $last_names_file, "" ) . "\')\n",
+                "\t[-v|--version]                  (version)\n",
+                "\t[-w|--want number]              (number of names. default=$want)\n",
+                "\t[-L|--last-max-len number]      (default=$last_name_max)\n",
+                "\t[-F|--first-max-len number]     (default=$first_name_max)\n" ;
             return(0) ;
         } else {
             print_error( "Unknown option: $arg" ) ;
@@ -96,6 +98,10 @@ sub main {
     # sanity checks
     if ( $give_up_value !~ /^\d+$/ ) {
         print_error( "give-up value is not a number: $give_up_value" ) ;
+        return(1) ;
+    }
+    if ( not defined( $want )) {
+        print_error( "want option -w/--want given without a value" ) ;
         return(1) ;
     }
     if (( $want !~ /^\d+$/ ) or ( $want eq '0' )) {
@@ -266,8 +272,13 @@ sub main {
         dprint( "length of longest name is $max_len" ) ;
         $field_width = $max_len + 5 ;
         dprint( "setting field width of name to $field_width" ) ;
+    } else {
+        if ( $alias_option) {
+            print_error( "need to provide alias with -a/--alias option" ) ;
+            return(1)
+        }
     }
-        
+
     foreach my $name ( keys( %full_names )) {
         if ( defined( $alias )) {
             $name = "${name}:" ;

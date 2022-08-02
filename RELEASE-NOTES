@@ -1,0 +1,8 @@
+1.0     July 8, 2020
+        initial version
+
+1.1     Aug 1, 2022:
+        - improved/fixed formatting of output for -h/--help
+        - checks for no alias given with -a/--alias option
+        - checks if no value given with -w/--want option
+
